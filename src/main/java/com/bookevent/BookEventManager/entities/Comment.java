@@ -12,8 +12,13 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer comment_id;
     private String comment_content;
-    private String user_commented_id;
     private Date comment_added;
     private Date comment_updated;
+
+    @ManyToOne
+    private Event event;
+
+    @ManyToOne
+    private User user;
 
 }
