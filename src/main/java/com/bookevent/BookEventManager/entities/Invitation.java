@@ -1,9 +1,11 @@
 package com.bookevent.BookEventManager.entities;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "invitation")
+@Data
 public class Invitation {
 
     @Id

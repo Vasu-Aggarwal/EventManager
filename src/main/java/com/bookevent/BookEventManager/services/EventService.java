@@ -12,6 +12,10 @@ public interface EventService {
 
     //UPDATE EVENT
 
+    //GET EVENT BY ID ---> CHECK IF EVENT BELONGS TO USER OR NOT, IF ADMIN THEN ALLOW
+
+    //GET ALL EVENTS -----> ADMIN
+
 
 
 }

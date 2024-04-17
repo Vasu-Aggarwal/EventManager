@@ -1,10 +1,14 @@
 package com.bookevent.BookEventManager.utils.dtos;
 
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.validator.constraints.UniqueElements;
+
+import java.lang.annotation.Repeatable;
 
 @Data
 public class UserDto {
@@ -20,6 +24,7 @@ public class UserDto {
     private String name;
 
     @Email(message = "Enter a valid email")
+    @UniqueElements
     private String email;
     private String username;
 

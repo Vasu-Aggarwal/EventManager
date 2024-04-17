@@ -2,7 +2,6 @@ package com.bookevent.BookEventManager.entities;
 
 
 import jakarta.persistence.*;
-import jdk.jfr.Description;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -17,8 +16,13 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer event_id;
 
+    @Column(nullable = false)
     private Date start_time;
+
+    @Column(nullable = false)
     private Duration duration;
+
+    @Column(nullable = false)
     private int event_type;
 
     @OneToOne
