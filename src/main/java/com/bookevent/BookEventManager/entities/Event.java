@@ -28,4 +28,7 @@ public class Event {
     @Column(name = "comment_id")
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    private List<Invitation> invitations = new ArrayList<>();
+
 }
