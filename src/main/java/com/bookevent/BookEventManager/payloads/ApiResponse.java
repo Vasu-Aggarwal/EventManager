@@ -8,5 +8,5 @@ import lombok.Data;
 public class ApiResponse {
     private String message;
     private Boolean success;
-    private int status;
+    private int status;    //Error=0, working fine=1
 }

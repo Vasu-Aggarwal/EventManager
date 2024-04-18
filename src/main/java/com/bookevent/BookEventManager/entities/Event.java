@@ -1,8 +1,12 @@
 package com.bookevent.BookEventManager.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
+import lombok.Data;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "event")
+@Data
 public class Event {
 
     @Id
@@ -17,16 +22,22 @@ public class Event {
     private Integer event_id;
 
     @Column(nullable = false)
-    private Date start_time;
+    private Time start_time;
 
     @Column(nullable = false)
-    private Duration duration;
+    @Temporal(TemporalType.DATE)
+    private Date start_date;
 
     @Column(nullable = false)
-    private int event_type;
+    @Temporal(TemporalType.DATE)
+    private Date end_date;
 
-    @OneToOne
-    private User user;
+    @Column(nullable = false)
+    private int event_type;    //private = 1, public 0
+
+    private String created_by;
+
+    private String invitees;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @Column(name = "comment_id")
