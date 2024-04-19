@@ -5,6 +5,7 @@ import com.bookevent.BookEventManager.entities.Invitation;
 import com.bookevent.BookEventManager.entities.User;
 import com.bookevent.BookEventManager.exceptions.BadRequest;
 import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
+import com.bookevent.BookEventManager.payloads.CreateEventRequest;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
@@ -37,20 +38,20 @@ public class EventServiceImpl implements EventService {
     private InvitationRepository invitationRepository;
 
     @Override
-    public EventDto createEvent(EventDto eventDto) {
-        User user = this.userRepository.findById(eventDto.getCreated_by())
+    public EventDto createEvent(CreateEventRequest createEventRequest) {
+
+        User user = this.userRepository.findById(createEventRequest.getCreated_by())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Event event = this.modelMapper.map(eventDto, Event.class);
+        Event event = this.modelMapper.map(createEventRequest, Event.class);
         //check if format provided by the user is correct or no
-        event.setStart_date(eventDto.getStart_date());
-        event.setStart_time(eventDto.getStart_time());
-        event.setEnd_date(eventDto.getEnd_date());
-        event.setCreated_by(eventDto.getCreated_by());
-        event.setInvitees(eventDto.getInvitees());
+        event.setStart_date(createEventRequest.getStart_date());
+        event.setStart_time(createEventRequest.getStart_time());
+        event.setEnd_date(createEventRequest.getEnd_date());
+//        event.setInvitations(createEventRequest.getInvitees());
+        event.setCreated_by(user);
+        Event savedEvent = this.eventRepository.save(event);
 
-        System.out.println("USER PASSED DATE"+eventDto.getStart_time());
-
-        return this.modelMapper.map(this.eventRepository.save(event), EventDto.class);
+        return this.modelMapper.map(savedEvent, EventDto.class);
     }
 
     @Override

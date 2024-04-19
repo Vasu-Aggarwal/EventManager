@@ -1,6 +1,7 @@
 package com.bookevent.BookEventManager.controllers;
 
 import com.bookevent.BookEventManager.payloads.ApiResponse;
+import com.bookevent.BookEventManager.payloads.CreateEventRequest;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class EventController {
 
     //CREATE EVENT
     @PostMapping("/createEvent")
-    public ResponseEntity<EventDto> createEvent(@RequestBody EventDto eventDto) throws ParseException {
-        EventDto newEvent = this.eventService.createEvent(eventDto);
+    public ResponseEntity<EventDto> createEvent(@RequestBody CreateEventRequest createEventRequest) throws ParseException {
+        EventDto newEvent = this.eventService.createEvent(createEventRequest);
         return new ResponseEntity<>(newEvent, HttpStatus.CREATED);
     }
 

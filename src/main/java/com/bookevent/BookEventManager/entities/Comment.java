@@ -19,6 +19,7 @@ public class Comment {
     private Event event;
 
     @ManyToOne
-    private User user;
+    @JoinColumn(name = "user_commented")
+    private User user_commented;
 
 }

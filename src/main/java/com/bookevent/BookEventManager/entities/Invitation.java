@@ -12,10 +12,13 @@ public class Invitation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer invite_id;
 
-    @ManyToOne
-    private Event event;
+    private int is_invited;
 
     @ManyToOne
-    private User invitedUser;
+    @JoinColumn(name = "invited_user_id")
+    private User invited_user;
+
+    @ManyToOne
+    private Event event;
 
 }

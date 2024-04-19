@@ -35,9 +35,12 @@ public class Event {
     @Column(nullable = false)
     private int event_type;    //private = 1, public 0
 
-    private String created_by;
+//    private String created_by;
+//    private String invitees;
 
-    private String invitees;
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User created_by;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @Column(name = "comment_id")
