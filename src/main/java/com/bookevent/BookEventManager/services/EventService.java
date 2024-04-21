@@ -1,6 +1,7 @@
 package com.bookevent.BookEventManager.services;
 
 import com.bookevent.BookEventManager.payloads.CreateEventRequest;
+import com.bookevent.BookEventManager.payloads.EventResponse;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
 
 import java.text.ParseException;
@@ -9,7 +10,7 @@ import java.util.List;
 public interface EventService {
 
     //CREATE EVENT
-    EventDto createEvent(CreateEventRequest createEventRequest) throws ParseException;
+    EventResponse createEvent(CreateEventRequest createEventRequest) throws ParseException;
 
     //UPDATE EVENT BY USER
     EventDto updateEvent(EventDto eventDto);

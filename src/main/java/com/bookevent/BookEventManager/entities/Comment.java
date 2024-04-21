@@ -16,6 +16,7 @@ public class Comment {
     private Date comment_updated;
 
     @ManyToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @ManyToOne

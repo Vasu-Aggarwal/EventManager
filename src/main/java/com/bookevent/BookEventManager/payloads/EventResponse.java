@@ -1,8 +1,6 @@
-package com.bookevent.BookEventManager.utils.dtos;
+package com.bookevent.BookEventManager.payloads;
 
-import com.bookevent.BookEventManager.entities.Invitation;
-import com.bookevent.BookEventManager.payloads.InviteUserResponse;
-import com.bookevent.BookEventManager.payloads.UserResponse;
+import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -14,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class EventDto {
+public class EventResponse {
 
     private Integer event_id;
 
@@ -31,7 +29,5 @@ public class EventDto {
 
     private int event_type; //private = 1, public 0
     private UserResponse created_by;
-    private InviteUserResponse invitees;
 
-    private List<InvitationDto> invites = new ArrayList<>();
 }

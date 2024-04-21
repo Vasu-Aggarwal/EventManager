@@ -6,20 +6,26 @@ import com.bookevent.BookEventManager.entities.User;
 import com.bookevent.BookEventManager.exceptions.BadRequest;
 import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
 import com.bookevent.BookEventManager.payloads.CreateEventRequest;
+import com.bookevent.BookEventManager.payloads.EventResponse;
+import com.bookevent.BookEventManager.payloads.InviteUserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
+import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +43,11 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private InvitationRepository invitationRepository;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Override
-    public EventDto createEvent(CreateEventRequest createEventRequest) {
+    public EventResponse createEvent(CreateEventRequest createEventRequest) {
 
         User user = this.userRepository.findById(createEventRequest.getCreated_by())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -47,11 +56,30 @@ public class EventServiceImpl implements EventService {
         event.setStart_date(createEventRequest.getStart_date());
         event.setStart_time(createEventRequest.getStart_time());
         event.setEnd_date(createEventRequest.getEnd_date());
-//        event.setInvitations(createEventRequest.getInvitees());
+        event.setEvent_type(createEventRequest.getEvent_type());
         event.setCreated_by(user);
-        Event savedEvent = this.eventRepository.save(event);
+        InviteUserResponse inviteUserResponse = new InviteUserResponse();
+        Event savedEvent;
+        if (createEventRequest.getInvitees().isEmpty()){
+            savedEvent = this.eventRepository.save(event);
+        } else {
+            savedEvent = this.eventRepository.save(event);
+            //send invite to the users
 
-        return this.modelMapper.map(savedEvent, EventDto.class);
+            Map<String, Object> inviteUserJsonBody = new HashMap<>();
+            inviteUserJsonBody.put("is_invited", 1);
+            inviteUserJsonBody.put("event", savedEvent.getEvent_id());
+            inviteUserJsonBody.put("invitedUser", createEventRequest.getInvitees());
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(inviteUserJsonBody);
+
+            inviteUserResponse = this.restTemplate.postForObject("http://localhost:9090/api/invitation/inviteUser", request, InviteUserResponse.class);
+            System.out.println("invited users from event : " + inviteUserResponse);
+        }
+        assert inviteUserResponse != null;
+        List<Invitation> invitations = inviteUserResponse.getInvited_user().stream().map((invite)-> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList());
+        savedEvent.setInvitations(invitations);
+
+        return this.modelMapper.map(savedEvent, EventResponse.class);
     }
 
     @Override
@@ -60,9 +88,6 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event does not exists"));
         event.setEvent_type(eventDto.getEvent_type());
         event.setEnd_date(eventDto.getEnd_date());
-//        event.setStart_time(eventDto.getStart_time());
-        event.setInvitations(eventDto.getInvites()
-                .stream().map((invite) -> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList()));
         return this.modelMapper.map(event, EventDto.class);
     }
 

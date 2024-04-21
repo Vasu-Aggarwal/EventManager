@@ -1,5 +1,6 @@
 package com.bookevent.BookEventManager.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jdk.dynalink.linker.LinkerServices;
 import lombok.AllArgsConstructor;

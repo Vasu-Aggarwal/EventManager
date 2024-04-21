@@ -1,7 +1,10 @@
 package com.bookevent.BookEventManager.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Entity
 @Table(name = "invitation")
@@ -19,6 +22,7 @@ public class Invitation {
     private User invited_user;
 
     @ManyToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
 }
