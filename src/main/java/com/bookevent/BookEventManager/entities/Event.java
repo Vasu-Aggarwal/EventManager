@@ -1,6 +1,7 @@
 package com.bookevent.BookEventManager.entities;
 
 
+import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;

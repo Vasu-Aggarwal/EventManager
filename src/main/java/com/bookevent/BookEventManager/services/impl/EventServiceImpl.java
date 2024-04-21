@@ -16,9 +16,12 @@ import com.bookevent.BookEventManager.utils.dtos.EventDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,7 +61,7 @@ public class EventServiceImpl implements EventService {
         event.setEnd_date(createEventRequest.getEnd_date());
         event.setEvent_type(createEventRequest.getEvent_type());
         event.setCreated_by(user);
-        InviteUserResponse inviteUserResponse = new InviteUserResponse();
+        ResponseEntity<InviteUserResponse> inviteUserResponse = null;
         Event savedEvent;
 
         if (createEventRequest.getInvitees().isEmpty()){
@@ -66,6 +69,8 @@ public class EventServiceImpl implements EventService {
         } else {
             savedEvent = this.eventRepository.save(event);
             //send invite to the users
+            List<User> users = createEventRequest.getInvitees().stream()
+                    .map((userEmail) -> this.userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException(userEmail+" user not found"))).collect(Collectors.toList());
 
             Map<String, Object> inviteUserJsonBody = new HashMap<>();
             inviteUserJsonBody.put("is_invited", 1);
@@ -73,11 +78,14 @@ public class EventServiceImpl implements EventService {
             inviteUserJsonBody.put("invitedUser", createEventRequest.getInvitees());
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(inviteUserJsonBody);
 
-            inviteUserResponse = this.restTemplate.postForObject("http://localhost:9090/api/invitation/inviteUser", request, InviteUserResponse.class);
-            System.out.println("invited users from event : " + inviteUserResponse);
+            try {
+                inviteUserResponse = this.restTemplate.postForEntity("http://localhost:9090/api/invitation/inviteUser", request, InviteUserResponse.class);
+            } catch (HttpClientErrorException e){
+                throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
+            }
+
         }
-        assert inviteUserResponse != null;
-        List<Invitation> invitations = inviteUserResponse.getInvited_user().stream().map((invite)-> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList());
+        List<Invitation> invitations = inviteUserResponse.getBody().getInvited_user().stream().map((invite)-> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList());
         savedEvent.setInvitations(invitations);
 
         return this.modelMapper.map(savedEvent, EventResponse.class);
