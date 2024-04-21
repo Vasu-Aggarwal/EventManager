@@ -5,26 +5,27 @@ import com.bookevent.BookEventManager.entities.Invitation;
 import com.bookevent.BookEventManager.entities.User;
 import com.bookevent.BookEventManager.exceptions.BadRequest;
 import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
-import com.bookevent.BookEventManager.payloads.CreateEventRequest;
-import com.bookevent.BookEventManager.payloads.EventResponse;
-import com.bookevent.BookEventManager.payloads.InviteUserResponse;
+import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
+import com.bookevent.BookEventManager.payloads.responses.EventResponse;
+import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
-import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,6 @@ public class EventServiceImpl implements EventService {
         User user = this.userRepository.findById(createEventRequest.getCreated_by())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Event event = this.modelMapper.map(createEventRequest, Event.class);
-        //check if format provided by the user is correct or no
         event.setStart_date(createEventRequest.getStart_date());
         event.setStart_time(createEventRequest.getStart_time());
         event.setEnd_date(createEventRequest.getEnd_date());
@@ -60,6 +60,7 @@ public class EventServiceImpl implements EventService {
         event.setCreated_by(user);
         InviteUserResponse inviteUserResponse = new InviteUserResponse();
         Event savedEvent;
+
         if (createEventRequest.getInvitees().isEmpty()){
             savedEvent = this.eventRepository.save(event);
         } else {

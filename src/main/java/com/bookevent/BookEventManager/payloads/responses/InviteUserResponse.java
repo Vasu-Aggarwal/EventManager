@@ -1,6 +1,6 @@
-package com.bookevent.BookEventManager.payloads;
+package com.bookevent.BookEventManager.payloads.responses;
 
-import com.bookevent.BookEventManager.utils.dtos.EventDto;
+import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;

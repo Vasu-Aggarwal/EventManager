@@ -1,15 +1,12 @@
-package com.bookevent.BookEventManager.payloads;
+package com.bookevent.BookEventManager.payloads.responses;
 
-import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Data;
 
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class EventResponse {

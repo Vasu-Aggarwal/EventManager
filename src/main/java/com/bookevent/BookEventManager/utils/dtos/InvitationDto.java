@@ -1,10 +1,7 @@
 package com.bookevent.BookEventManager.utils.dtos;
 
-import com.bookevent.BookEventManager.payloads.EventResponse;
-import com.bookevent.BookEventManager.payloads.UserResponse;
+import com.bookevent.BookEventManager.payloads.responses.UserResponse;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class InvitationDto {

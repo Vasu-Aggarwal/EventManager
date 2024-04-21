@@ -1,7 +1,7 @@
 package com.bookevent.BookEventManager.services;
 
-import com.bookevent.BookEventManager.payloads.CreateEventRequest;
-import com.bookevent.BookEventManager.payloads.EventResponse;
+import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
+import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
 
 import java.text.ParseException;

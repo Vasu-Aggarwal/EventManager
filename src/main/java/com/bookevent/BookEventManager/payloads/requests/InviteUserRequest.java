@@ -1,4 +1,4 @@
-package com.bookevent.BookEventManager.payloads;
+package com.bookevent.BookEventManager.payloads.requests;
 
 import lombok.Data;
 

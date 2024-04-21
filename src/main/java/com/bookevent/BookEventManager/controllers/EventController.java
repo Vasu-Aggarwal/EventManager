@@ -1,8 +1,8 @@
 package com.bookevent.BookEventManager.controllers;
 
-import com.bookevent.BookEventManager.payloads.ApiResponse;
-import com.bookevent.BookEventManager.payloads.CreateEventRequest;
-import com.bookevent.BookEventManager.payloads.EventResponse;
+import com.bookevent.BookEventManager.payloads.responses.ApiResponse;
+import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
+import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
 import org.springframework.beans.factory.annotation.Autowired;

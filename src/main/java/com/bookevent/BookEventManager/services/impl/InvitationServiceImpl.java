@@ -4,24 +4,20 @@ import com.bookevent.BookEventManager.entities.Event;
 import com.bookevent.BookEventManager.entities.Invitation;
 import com.bookevent.BookEventManager.entities.User;
 import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
-import com.bookevent.BookEventManager.payloads.EventResponse;
-import com.bookevent.BookEventManager.payloads.InviteUserRequest;
-import com.bookevent.BookEventManager.payloads.InviteUserResponse;
-import com.bookevent.BookEventManager.payloads.UserResponse;
+import com.bookevent.BookEventManager.payloads.responses.EventResponse;
+import com.bookevent.BookEventManager.payloads.requests.InviteUserRequest;
+import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
 import com.bookevent.BookEventManager.services.InvitationService;
-import com.bookevent.BookEventManager.utils.dtos.EventDto;
 import com.bookevent.BookEventManager.utils.dtos.InvitationDto;
-import com.bookevent.BookEventManager.utils.dtos.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

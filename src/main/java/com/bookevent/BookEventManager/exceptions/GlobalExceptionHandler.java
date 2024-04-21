@@ -1,6 +1,6 @@
 package com.bookevent.BookEventManager.exceptions;
 
-import com.bookevent.BookEventManager.payloads.ApiResponse;
+import com.bookevent.BookEventManager.payloads.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
