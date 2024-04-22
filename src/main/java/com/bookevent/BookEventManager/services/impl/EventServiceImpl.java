@@ -8,6 +8,7 @@ import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
 import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
 import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
+import com.bookevent.BookEventManager.payloads.responses.UserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
@@ -67,10 +68,27 @@ public class EventServiceImpl implements EventService {
         if (createEventRequest.getInvitees().isEmpty()){
             savedEvent = this.eventRepository.save(event);
         } else {
-            savedEvent = this.eventRepository.save(event);
             //send invite to the users
-            List<User> users = createEventRequest.getInvitees().stream()
-                    .map((userEmail) -> this.userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException(userEmail+" user not found"))).collect(Collectors.toList());
+            createEventRequest.getInvitees().stream()
+                    .map((userEmail) -> {
+                        ResponseEntity<UserResponse> addUserResponse = null;
+                        if (!this.userRepository.findByEmail(userEmail).isPresent()){
+                            Map<String, Object> addUserJsonBody = new HashMap<>();
+                            addUserJsonBody.put("name", userEmail);
+                            addUserJsonBody.put("email", userEmail);
+                            addUserJsonBody.put("password", "");
+                            addUserJsonBody.put("is_account", 0);
+                            HttpEntity<Map<String, Object>> request = new HttpEntity<>(addUserJsonBody);
+                            try {
+                                 addUserResponse = this.restTemplate.postForEntity("http://localhost:9090/api/user/addUser", request, UserResponse.class);
+                            } catch (HttpClientErrorException e){
+                                throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
+                            }
+                        }
+                        return addUserResponse;
+                    });
+
+            savedEvent = this.eventRepository.save(event);
 
             Map<String, Object> inviteUserJsonBody = new HashMap<>();
             inviteUserJsonBody.put("is_invited", 1);
