@@ -72,8 +72,6 @@ public class EventServiceImpl implements EventService {
         } else {
             savedEvent = this.eventRepository.save(event);
 //            send invite to the users
-//            List<User> users = createEventRequest.getInvitees().stream()
-//                    .map((userEmail) -> this.userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException(userEmail+" user not found"))).collect(Collectors.toList());
 
             List<User> users = createEventRequest.getInvitees().stream()
                     .map((userEmail) -> {
