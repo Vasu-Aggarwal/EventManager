@@ -8,11 +8,13 @@ import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
 import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
 import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
+import com.bookevent.BookEventManager.payloads.responses.UserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
+import com.bookevent.BookEventManager.utils.dtos.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.html.Option;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -68,9 +71,31 @@ public class EventServiceImpl implements EventService {
             savedEvent = this.eventRepository.save(event);
         } else {
             savedEvent = this.eventRepository.save(event);
-            //send invite to the users
+//            send invite to the users
+//            List<User> users = createEventRequest.getInvitees().stream()
+//                    .map((userEmail) -> this.userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException(userEmail+" user not found"))).collect(Collectors.toList());
+
             List<User> users = createEventRequest.getInvitees().stream()
-                    .map((userEmail) -> this.userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException(userEmail+" user not found"))).collect(Collectors.toList());
+                    .map((userEmail) -> {
+                        Optional<User> userOptional = this.userRepository.findByEmail(userEmail);
+                        if (userOptional.isPresent()){
+                            return userOptional.get();
+                        } else {
+                            Map<String, Object> addUserJsonBody = new HashMap<>();
+                            addUserJsonBody.put("name", userEmail);
+                            addUserJsonBody.put("password", "12345678");
+                            addUserJsonBody.put("email", userEmail);
+                            addUserJsonBody.put("is_account", 0);
+                            HttpEntity<Map<String, Object>> request = new HttpEntity<>(addUserJsonBody);
+                            ResponseEntity<UserResponse> userResponse;
+                            try {
+                                userResponse = this.restTemplate.postForEntity("http://localhost:9090/api/user/addUser", request, UserResponse.class);
+                            } catch (HttpClientErrorException e){
+                                throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
+                            }
+                            return  this.modelMapper.map(userResponse.getBody(), User.class);
+                        }
+                    }).collect(Collectors.toList());
 
             Map<String, Object> inviteUserJsonBody = new HashMap<>();
             inviteUserJsonBody.put("is_invited", 1);
