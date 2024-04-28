@@ -3,9 +3,11 @@ package com.bookevent.BookEventManager.controllers;
 import com.bookevent.BookEventManager.payloads.responses.ApiResponse;
 import com.bookevent.BookEventManager.services.UserService;
 import com.bookevent.BookEventManager.utils.dtos.UserDto;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,7 @@ public class UserController {
 
     //GET ALL USERS
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserDto>> getAllUsers(){
         List<UserDto> userDtos = this.userService.getAllUsers();
         return new ResponseEntity<>(userDtos, HttpStatus.OK);
