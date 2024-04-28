@@ -8,30 +8,27 @@ import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
 import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
 import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.payloads.responses.InviteUserResponse;
+import com.bookevent.BookEventManager.payloads.responses.JwtResponse;
 import com.bookevent.BookEventManager.payloads.responses.UserResponse;
 import com.bookevent.BookEventManager.repositories.EventRepository;
 import com.bookevent.BookEventManager.repositories.InvitationRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
+import com.bookevent.BookEventManager.security.JwtHelper;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
-import com.bookevent.BookEventManager.utils.dtos.UserDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.text.html.Option;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +50,9 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private JwtHelper jwtHelper;
+
     @Override
     public EventResponse createEvent(CreateEventRequest createEventRequest) {
 
@@ -71,6 +71,15 @@ public class EventServiceImpl implements EventService {
             savedEvent = this.eventRepository.save(event);
         } else {
             savedEvent = this.eventRepository.save(event);
+
+            //get token
+            Map<String, Object> loginJsonBody = new HashMap<>();
+            loginJsonBody.put("username", user.getEmail());
+            loginJsonBody.put("password", user.getPassword());
+            HttpEntity<Map<String, Object>> request1 = new HttpEntity<>(loginJsonBody);
+
+            ResponseEntity<JwtResponse> token = this.restTemplate.postForEntity("http://localhost:9090/auth/login", request1, JwtResponse.class);
+
 //            send invite to the users
 
             List<User> users = createEventRequest.getInvitees().stream()
@@ -91,7 +100,7 @@ public class EventServiceImpl implements EventService {
                             } catch (HttpClientErrorException e){
                                 throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
                             }
-                            return  this.modelMapper.map(userResponse.getBody(), User.class);
+                            return this.modelMapper.map(userResponse.getBody(), User.class);
                         }
                     }).collect(Collectors.toList());
 
@@ -102,15 +111,18 @@ public class EventServiceImpl implements EventService {
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(inviteUserJsonBody);
 
             try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", token.getBody().getToken());
+                HttpEntity<String> jwtToken = new HttpEntity<>(headers);
+//                inviteUserResponse = this.restTemplate.exchange("http://localhost:9090/api/invitation/inviteUser", HttpMethod.POST, jwtToken, InviteUserResponse.class, request);
                 inviteUserResponse = this.restTemplate.postForEntity("http://localhost:9090/api/invitation/inviteUser", request, InviteUserResponse.class);
+                List<Invitation> invitations = inviteUserResponse.getBody().getInvited_user().stream().map((invite)-> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList());
+                savedEvent.setInvitations(invitations);
             } catch (HttpClientErrorException e){
                 throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
             }
 
         }
-        List<Invitation> invitations = inviteUserResponse.getBody().getInvited_user().stream().map((invite)-> this.modelMapper.map(invite, Invitation.class)).collect(Collectors.toList());
-        savedEvent.setInvitations(invitations);
-
         return this.modelMapper.map(savedEvent, EventResponse.class);
     }
 
@@ -132,10 +144,19 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto getEventById(Integer event_id) {
+    public EventDto getEventById(Integer event_id, String token) {
         Event event = this.eventRepository.findById(event_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event does not exists"));
-        return this.modelMapper.map(event, EventDto.class);
+        String username = "";
+        if (token != null && token.startsWith("Bearer")) {
+            username = jwtHelper.getUsernameFromToken(token.substring(7));
+        }
+        if (event.getCreated_by().getUsername().equalsIgnoreCase(username)){
+            return this.modelMapper.map(event, EventDto.class);
+        } else {
+            throw new BadRequest("You are unauthorized", "");
+        }
+
     }
 
     @Override

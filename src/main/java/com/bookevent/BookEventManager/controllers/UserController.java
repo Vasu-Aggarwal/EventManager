@@ -35,6 +35,7 @@ public class UserController {
 
     //DELETE USER
     @DeleteMapping("/deleteUser/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable String userId){
         this.userService.deleteUser(userId);
         return new ResponseEntity<>(new ApiResponse("User deleted successfully", true, 1), HttpStatus.OK);
@@ -50,6 +51,7 @@ public class UserController {
 
     //GET USER BY ID
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserDto> getUserById(@PathVariable String userId){
         UserDto userDto = this.userService.getUserById(userId);
         return new ResponseEntity<>(userDto, HttpStatus.OK);

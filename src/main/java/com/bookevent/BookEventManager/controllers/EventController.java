@@ -5,9 +5,12 @@ import com.bookevent.BookEventManager.payloads.requests.CreateEventRequest;
 import com.bookevent.BookEventManager.payloads.responses.EventResponse;
 import com.bookevent.BookEventManager.services.EventService;
 import com.bookevent.BookEventManager.utils.dtos.EventDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -50,12 +53,15 @@ public class EventController {
 
     //GET EVENT BY ID ---> CHECK IF EVENT BELONGS TO USER OR NOT, IF ADMIN THEN ALLOW
     @GetMapping("/{event_id}")
-    public ResponseEntity<EventDto> getEventById(@PathVariable Integer event_id){
-        return new ResponseEntity<>(this.eventService.getEventById(event_id), HttpStatus.OK);
+    @ResponseBody
+    public ResponseEntity<EventDto> getEventById(@PathVariable Integer event_id, HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        return new ResponseEntity<>(this.eventService.getEventById(event_id, token), HttpStatus.OK);
     }
 
     //GET ALL EVENTS -----> ADMIN
     @GetMapping("/")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<EventDto>> getEventById(){
         List<EventDto> eventDtoList = this.eventService.getAllEvents();
         return new ResponseEntity<>(eventDtoList, HttpStatus.OK);

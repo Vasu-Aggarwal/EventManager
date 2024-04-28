@@ -19,7 +19,7 @@ public interface EventService {
     void deleteAnyEvent(Integer event_id);
 
     //GET EVENT BY ID ---> CHECK IF EVENT BELONGS TO USER OR NOT, IF ADMIN THEN ALLOW
-    EventDto getEventById(Integer event_id);
+    EventDto getEventById(Integer event_id, String token);
 
     //GET ALL EVENTS -----> ADMIN
     List<EventDto> getAllEvents();
