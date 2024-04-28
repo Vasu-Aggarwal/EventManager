@@ -36,7 +36,7 @@ public class SecurityConfig {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeRequests().
-                requestMatchers("/api").authenticated().requestMatchers("/auth/login")
+                requestMatchers("api/**").authenticated().requestMatchers("/auth/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -44,8 +44,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults());
+//        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated())
+//                .httpBasic(Customizer.withDefaults());
         http.authenticationProvider(daoAuthenticationProvider());
 
         return http.build();

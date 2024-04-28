@@ -6,6 +6,10 @@ import java.util.List;
 
 public interface UserService {
 
+    //Register new user [security]
+    UserDto registerUser(UserDto userDto);
+    UserDto registerAdminUser(UserDto userDto);
+
     //Create user
     UserDto addUser(UserDto userDto);
 

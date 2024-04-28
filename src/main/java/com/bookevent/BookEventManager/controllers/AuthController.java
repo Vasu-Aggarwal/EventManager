@@ -2,7 +2,10 @@ package com.bookevent.BookEventManager.controllers;
 
 import com.bookevent.BookEventManager.payloads.requests.JwtRequest;
 import com.bookevent.BookEventManager.payloads.responses.JwtResponse;
+import com.bookevent.BookEventManager.payloads.responses.UserResponse;
 import com.bookevent.BookEventManager.security.JwtHelper;
+import com.bookevent.BookEventManager.services.UserService;
+import com.bookevent.BookEventManager.utils.dtos.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class AuthController {
     @Autowired
     private AuthenticationManager manager;
 
+    @Autowired
+    private UserService userService;
+
 
     @Autowired
     private JwtHelper helper;
@@ -44,6 +50,18 @@ public class AuthController {
         JwtResponse response = JwtResponse.builder()
                 .token(token).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> registerNewUser(@RequestBody UserDto userDto) {
+        UserDto user = this.userService.registerUser(userDto);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/registerAdmin")
+    public ResponseEntity<UserDto> registerAdminUser(@RequestBody UserDto userDto) {
+        UserDto user = this.userService.registerAdminUser(userDto);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     private void doAuthenticate(String username, String password) {

@@ -1,13 +1,17 @@
 package com.bookevent.BookEventManager.services.impl;
 
+import com.bookevent.BookEventManager.config.AppConstants;
+import com.bookevent.BookEventManager.entities.Role;
 import com.bookevent.BookEventManager.entities.User;
 import com.bookevent.BookEventManager.exceptions.BadRequest;
 import com.bookevent.BookEventManager.exceptions.ResourceNotFoundException;
+import com.bookevent.BookEventManager.repositories.RoleRepository;
 import com.bookevent.BookEventManager.repositories.UserRepository;
 import com.bookevent.BookEventManager.services.UserService;
 import com.bookevent.BookEventManager.utils.dtos.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +28,46 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+
+    @Override
+    public UserDto registerUser(UserDto userDto) {
+        User user = this.modelMapper.map(userDto, User.class);
+        user.setUser_id(UUID.randomUUID().toString());
+        user.setUsername(user.getName().replaceAll("\\s","")+ new Random().nextInt(9999));
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        user.setIs_account(1);
+        //set role
+        Role role = this.roleRepository.findById(AppConstants.NORMAL_USER).get();
+        user.getRoles().add(role);
+        if (this.userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new BadRequest(user.getEmail());
+        } else {
+            return this.modelMapper.map(this.userRepository.save(user), UserDto.class);
+        }
+    }
+
+    @Override
+    public UserDto registerAdminUser(UserDto userDto) {
+        User user = this.modelMapper.map(userDto, User.class);
+        user.setUser_id(UUID.randomUUID().toString());
+        user.setUsername(user.getName().replaceAll("\\s","")+ new Random().nextInt(9999));
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        user.setIs_account(1);
+        //set role
+        Role role = this.roleRepository.findById(AppConstants.ADMIN_USER).get();
+        user.getRoles().add(role);
+        if (this.userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new BadRequest(user.getEmail());
+        } else {
+            return this.modelMapper.map(this.userRepository.save(user), UserDto.class);
+        }
+    }
 
     @Override
     public UserDto addUser(UserDto userDto) {

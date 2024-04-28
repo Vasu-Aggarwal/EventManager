@@ -1,11 +1,14 @@
 package com.bookevent.BookEventManager.utils.dtos;
 
+import com.bookevent.BookEventManager.entities.Role;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.lang.annotation.Repeatable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class UserDto {
@@ -26,5 +29,7 @@ public class UserDto {
     private String username;
 
     private int is_account;
+
+    private Set<Role> roles = new HashSet<>();
 
 }
