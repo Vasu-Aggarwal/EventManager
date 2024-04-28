@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
     public UserDto addUser(UserDto userDto) {
         userDto.setUser_id(UUID.randomUUID().toString());
         userDto.setUsername(userDto.getName().replaceAll("\\s","")+ new Random().nextInt(9999));
+        userDto.setIs_account(1);
         if (this.userRepository.findByEmail(userDto.getEmail()).isPresent()){
             throw new BadRequest(userDto.getEmail());
         } else {

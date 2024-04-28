@@ -5,6 +5,11 @@ spring:
   application:
     name: "BookEventManager"
 
+  security:
+    user:
+      name: "vasu"
+      password: "vasu"
+
   jpa:
     show-sql: true
     defer-datasource-initialization: true
